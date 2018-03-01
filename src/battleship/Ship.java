@@ -15,7 +15,6 @@ public class Ship implements Serializable {
      * are descriptive and match the words put in the configuration
      * files.
      *
-     * @see Orientation#valueOf(String)
      */
     public enum Orientation {
         HORIZONTAL( 0, 1 ), VERTICAL( 1, 0 );
@@ -37,7 +36,11 @@ public class Ship implements Serializable {
             this.cDelta = cDelta;
         }
     }
-
+    private Board board;
+    private int uRow;
+    private int lCol;
+    private Orientation ort;
+    private int length;
     /**
      * Initialize this new ship's state. Tell the Board object
      * and each involved Cell object about the existence of this
@@ -52,6 +55,14 @@ public class Ship implements Serializable {
      * @throws OutOfBoundsException if this ship would extend beyond
      *              the board
      */
-    // TODO Write your code here.
+    public Ship(Board board, int uRow, int lCol, Orientation ort, int length) throws OverlapException, OutOfBoundsException{
+        this.board = board;
 
+    }
+    public void hit(){
+
+    }
+    public boolean isSunk(){
+        return false;
+    }
 }

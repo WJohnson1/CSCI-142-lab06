@@ -30,7 +30,14 @@ public class Cell implements Serializable {
      */
     public static final char HIDDEN_SHIP_SECTION = 'S';
 
-
+    private int row;
+    private int column;
+    private char status;
+    public Cell(int row, int column){
+        this.row = row;
+        this.column = column;
+        this.status = PRISTINE_WATER;
+    }
     /**
      * Place a ship on this cell. Of course, ships typically cover
      * more than one Cell, so the same ship will usually be passed
@@ -38,6 +45,38 @@ public class Cell implements Serializable {
      * @param ship the ship that is to be on this Cell
      * @throws OverlapException if there is already a ship here.
      */
-    // TODO putShip GOES HERE
+    public void putShip(Ship ship) throws OverlapException {
+        if (this.status == HIDDEN_SHIP_SECTION || this.status == HIT_WATER || this.status == HIT_SHIP_SECTION){
+            throw new OverlapException();
+        }
+        else{
+            this.status='S';
+        }
 
+    }
+    public void hit() throws CellPlayedException{
+        if (this.status == HIT_WATER || this.status == HIT_SHIP_SECTION){
+            throw new CellPlayedException(this.row,this.column);
+        }
+        else if (this.status == HIDDEN_SHIP_SECTION){
+            this.status = HIT_SHIP_SECTION;
+        }
+        else{
+            this.status = HIT_WATER;
+        }
+    }
+    public char displayHitStatus(){
+        if (this.status == HIDDEN_SHIP_SECTION || this.status == PRISTINE_WATER) {
+            return PRISTINE_WATER;
+        }
+        else if( this.status == HIT_WATER){
+            return HIT_WATER;
+        }
+        else {
+            return HIT_SHIP_SECTION;
+        }
+    }
+    public char displayChar(){
+        return this.status;
+    }
 }

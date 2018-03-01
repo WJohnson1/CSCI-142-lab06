@@ -1,5 +1,6 @@
 package battleship;
 
+import java.io.PrintStream;
 import java.io.Serializable;
 
 /**
@@ -15,7 +16,12 @@ import java.io.Serializable;
  * be separately saved.
  */
 public class Board implements Serializable {
-
+    private int height;
+    private int width;
+    public Board(int height, int width){
+        this.height = height;
+        this.width = width;
+    }
     /**
      * Fetch the Cell object at the given location.
      * @param row row number (0-based)
@@ -23,9 +29,17 @@ public class Board implements Serializable {
      * @return the Cell created for this position on the board
      * @throws OutOfBoundsException if either coordinate is negative or too high
      */
-    // TODO getCell GOES HERE
+    public Cell getCell(int row, int column) throws OutOfBoundsException{
+        return new Cell(0,0);
+    }
 
+    public int getHeight() {
+        return height;
+    }
 
+    public int getWidth() {
+        return width;
+    }
     /**
      * Add a ship to the board. The only current reason that the
      * board needs direct access to the ships is to poll them
@@ -35,6 +49,21 @@ public class Board implements Serializable {
      * @rit.pre This ship has already informed the Cells of the board
      *    that are involved.
      */
-    // TODO addShip GOES HERE
+    public void addShip(Ship ship){
 
+    }
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
+    public void display(PrintStream p){
+
+    }
+    public void fullDisplay(PrintStream p){
+
+    }
+    public boolean allSunk(){
+        return false;
+    }
 }
