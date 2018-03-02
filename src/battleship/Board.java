@@ -2,6 +2,7 @@ package battleship;
 
 import java.io.PrintStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  * The class to represent the grid of cells (squares).
@@ -18,9 +19,19 @@ import java.io.Serializable;
 public class Board implements Serializable {
     private int height;
     private int width;
+    private Cell[][] cells;
+    private ArrayList<Ship> ships;
     public Board(int height, int width){
         this.height = height;
         this.width = width;
+        Cell[][] cells = new Cell[height][width];
+        for (int i = 0; i<height;i++){
+            for (int j = 0; j<width;j++){
+                cells[i][j] = new Cell(i,j);
+            }
+        }
+        this.cells = cells;
+        this.ships = new ArrayList<Ship>();
     }
     /**
      * Fetch the Cell object at the given location.
@@ -30,7 +41,12 @@ public class Board implements Serializable {
      * @throws OutOfBoundsException if either coordinate is negative or too high
      */
     public Cell getCell(int row, int column) throws OutOfBoundsException{
-        return new Cell(0,0);
+        if (row >= getHeight() || row<0 || column>=getWidth() || column<0){
+            throw new OutOfBoundsException();
+        }
+        else{
+            return cells[row][column];
+        }
     }
 
     public int getHeight() {
@@ -50,20 +66,67 @@ public class Board implements Serializable {
      *    that are involved.
      */
     public void addShip(Ship ship){
-
+        this.ships.add(ship);
     }
 
     @Override
     public String toString() {
-        return super.toString();
+        String s = "  ";
+        for (int i = 0; i<this.getHeight()+1;i++){
+            if (i != 0 && i<this.getHeight()+1){
+                s = s + String.valueOf(i-1) + " ";
+            }
+            for (int j = 0; j<this.getWidth();j++) {
+                if (i == 0) {
+                    s = s + j + " ";
+                }
+                else {
+                    s = s + this.cells[i-1][j].displayChar() + " ";
+                }
+            }
+            s = s + "\n";
+        }
+        return s;
     }
-    public void display(PrintStream p){
-
+    public void display(PrintStream out){
+        for (int i = 0; i<this.getHeight();i++){
+            for (int j = 0; j<this.getWidth();j++) {
+                if (i == 0) {
+                    out.print(j + " ");
+                } else {
+                    out.print(this.cells[i][j].displayHitStatus() + "  ");
+                }
+            }
+            out.println();
+            out.print(i + " ");
+        }
     }
-    public void fullDisplay(PrintStream p){
-
+    public void fullDisplay(PrintStream out){
+        for (int i = 0; i<this.getHeight();i++){
+            for (int j = 0; j<this.getWidth();j++){
+                if (i == 0) {
+                    out.print(j + " ");
+                }
+                else{
+                    out.print(this.cells[i][j].displayChar() + "  ");
+                }
+            }
+            out.println();
+            out.print(i + " ");
+        }
     }
     public boolean allSunk(){
-        return false;
+        boolean a = true;
+        for (Ship s: this.ships){
+            if (s.isSunk() == false){
+                a = false;
+            }
+        }
+        return a;
+    }
+    public static void main(String[] args){
+        Board b = new Board(8,4);
+        System.out.println(b.toString());
+
     }
 }

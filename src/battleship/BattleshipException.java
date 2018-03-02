@@ -18,4 +18,7 @@ public class BattleshipException extends Exception {
     // TODO Add a second (overloading) constructor that only takes a
     // message string. It should pass the string up to its superclass
     // and set row and column to UNSET.
+    public BattleshipException(String msg){
+
+    }
 }

@@ -56,7 +56,7 @@ public class Cell implements Serializable {
     }
     public void hit() throws CellPlayedException{
         if (this.status == HIT_WATER || this.status == HIT_SHIP_SECTION){
-            throw new CellPlayedException(this.row,this.column);
+            throw new CellPlayedException(this.row,this.column,"You hit");
         }
         else if (this.status == HIDDEN_SHIP_SECTION){
             this.status = HIT_SHIP_SECTION;
@@ -78,5 +78,9 @@ public class Cell implements Serializable {
     }
     public char displayChar(){
         return this.status;
+    }
+
+    public void setStatus(char status) {
+        this.status = status;
     }
 }

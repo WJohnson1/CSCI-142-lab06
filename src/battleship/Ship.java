@@ -9,6 +9,22 @@ public class Ship implements Serializable {
 
     public static final String SUNK_MESSAGE = "A battleship has been sunk!";
 
+    public Board getBoard() {
+        return board;
+    }
+
+    public int getuRow() {
+        return uRow;
+    }
+
+    public int getlCol() {
+        return lCol;
+    }
+
+    public Orientation getOrt() {
+        return ort;
+    }
+
     /**
      * Orientation is a property of a ship.
      * The names of the enum values were chosen because they
@@ -41,6 +57,7 @@ public class Ship implements Serializable {
     private int lCol;
     private Orientation ort;
     private int length;
+    private int hit;
     /**
      * Initialize this new ship's state. Tell the Board object
      * and each involved Cell object about the existence of this
@@ -56,13 +73,78 @@ public class Ship implements Serializable {
      *              the board
      */
     public Ship(Board board, int uRow, int lCol, Orientation ort, int length) throws OverlapException, OutOfBoundsException{
-        this.board = board;
+        if (ort == Orientation.HORIZONTAL){
+            if (lCol + length>board.getWidth()){
+                throw new OutOfBoundsException();
+            }
+            else{
+                boolean a = false;
+                for (int i = 0; i<length;i++){
+                    if (board.getCell(uRow,lCol+i).displayChar() == 'S' || board.getCell(uRow,lCol+i).displayChar() == '☐' ||
+                            board.getCell(uRow,lCol+i).displayChar() == '.'){
+                        a = true;
+                    }
+                }
+                if (a){
+                    throw new OverlapException();
+                }
+                else{
+                    this.board = board;
+                    for (int j = 0;j<length;j++){
+                        Cell c = board.getCell(uRow,lCol+j);
+                        c.setStatus('S');
+                    }
+                    this.uRow = uRow;
+                    this.lCol = lCol;
+                    this.ort = ort;
+                    this.length = length;
+                    this.hit = 0;
+                }
+            }
+        }
+        else{
+            if (uRow + length>board.getHeight()){
+                throw new OutOfBoundsException();
+            }
+            else{
+                boolean a = false;
+                for (int i = 0; i<length;i++){
+                    if (board.getCell(uRow+i,lCol).displayChar() == 'S' || board.getCell(uRow+i,lCol).displayChar() == '☐' ||
+                            board.getCell(uRow+i,lCol).displayChar() == '.'){
+                        a = true;
+                    }
+                }
+                if (a){
+                    throw new OverlapException();
+                }
+                else{
+                    this.board = board;
+                    for (int j = 0;j<length;j++){
+                        Cell c = board.getCell(uRow+j,lCol);
+                        c.setStatus('S');
+                    }
+                    this.uRow = uRow;
+                    this.lCol = lCol;
+                    this.ort = ort;
+                    this.length = length;
+                    this.hit = 0;
+                }
+            }
+        }
 
     }
-    public void hit(){
-
+    public void hit() {
+        this.hit += 1;
+        if (isSunk()) {
+            System.out.println(SUNK_MESSAGE);
+        }
     }
     public boolean isSunk(){
-        return false;
+        if (this.hit == this.length){
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }
