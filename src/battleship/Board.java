@@ -42,7 +42,7 @@ public class Board implements Serializable {
      */
     public Cell getCell(int row, int column) throws OutOfBoundsException{
         if (row >= getHeight() || row<0 || column>=getWidth() || column<0){
-            throw new OutOfBoundsException();
+            throw new OutOfBoundsException("The cell coordinates are not in the board");
         }
         else{
             return cells[row][column];
@@ -65,8 +65,19 @@ public class Board implements Serializable {
      * @rit.pre This ship has already informed the Cells of the board
      *    that are involved.
      */
-    public void addShip(Ship ship){
+    public void addShip(Ship ship) throws OverlapException {
+
         this.ships.add(ship);
+        if (ship.getOrt() == Ship.Orientation.HORIZONTAL){
+            for (int i = 0; i<ship.getLength();i++){
+                this.cells[ship.getuRow()][ship.getlCol()+i].putShip(ship);
+            }
+        }
+        else{
+            for (int i = 0; i<ship.getLength();i++){
+                this.cells[ship.getuRow()+i][ship.getlCol()].putShip(ship);
+            }
+        }
     }
 
     @Override
@@ -89,41 +100,65 @@ public class Board implements Serializable {
         return s;
     }
     public void display(PrintStream out){
-        for (int i = 0; i<this.getHeight();i++){
-            for (int j = 0; j<this.getWidth();j++) {
+        out.print("  ");
+        for (int i = 0; i<this.getHeight()+1;i++) {
+            for (int j = 0; j < this.getWidth(); j++) {
                 if (i == 0) {
                     out.print(j + " ");
                 } else {
-                    out.print(this.cells[i][j].displayHitStatus() + "  ");
+                    out.print(this.cells[i - 1][j].displayHitStatus() + " ");
                 }
             }
             out.println();
-            out.print(i + " ");
+            if (i < this.getHeight()) {
+                out.print(i + " ");
+            }
         }
+        out.println();
     }
+
+    public Cell[][] getCells() {
+        return cells;
+    }
+
     public void fullDisplay(PrintStream out){
-        for (int i = 0; i<this.getHeight();i++){
+        out.print("  ");
+        for (int i = 0; i<this.getHeight()+1;i++){
             for (int j = 0; j<this.getWidth();j++){
                 if (i == 0) {
                     out.print(j + " ");
                 }
                 else{
-                    out.print(this.cells[i][j].displayChar() + "  ");
+                    out.print(this.cells[i-1][j].displayChar() + " ");
                 }
             }
             out.println();
-            out.print(i + " ");
-        }
-    }
-    public boolean allSunk(){
-        boolean a = true;
-        for (Ship s: this.ships){
-            if (s.isSunk() == false){
-                a = false;
+            if (i < this.getHeight()) {
+                out.print(i + " ");
             }
         }
-        return a;
+        out.println();
     }
+    public boolean allSunk(){
+        try {
+            boolean a = true;
+            for (Ship s : this.ships) {
+                if (s.isSunk() == false) {
+                    a = false;
+                }
+            }
+            return a;
+        }
+        catch (OutOfBoundsException e){
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public ArrayList<Ship> getShips() {
+        return ships;
+    }
+
     public static void main(String[] args){
         Board b = new Board(8,4);
         System.out.println(b.toString());

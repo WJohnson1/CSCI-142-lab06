@@ -39,7 +39,7 @@ Checking if data/6-6-1-2-2.txt is a saved game file... no; will read as a text s
  5 _ _ _ _ _ _
 
 > h 03
-Wrong number of arguments for commandh
+Wrong number of arguments for command
 > h 0 3
 A battleship has been sunk!
 

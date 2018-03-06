@@ -75,7 +75,7 @@ public class Ship implements Serializable {
     public Ship(Board board, int uRow, int lCol, Orientation ort, int length) throws OverlapException, OutOfBoundsException{
         if (ort == Orientation.HORIZONTAL){
             if (lCol + length>board.getWidth()){
-                throw new OutOfBoundsException();
+                throw new OutOfBoundsException("The ship doesn't fit on the board");
             }
             else{
                 boolean a = false;
@@ -90,10 +90,6 @@ public class Ship implements Serializable {
                 }
                 else{
                     this.board = board;
-                    for (int j = 0;j<length;j++){
-                        Cell c = board.getCell(uRow,lCol+j);
-                        c.setStatus('S');
-                    }
                     this.uRow = uRow;
                     this.lCol = lCol;
                     this.ort = ort;
@@ -104,7 +100,7 @@ public class Ship implements Serializable {
         }
         else{
             if (uRow + length>board.getHeight()){
-                throw new OutOfBoundsException();
+                throw new OutOfBoundsException("The ship doesn't fit on the board");
             }
             else{
                 boolean a = false;
@@ -119,10 +115,6 @@ public class Ship implements Serializable {
                 }
                 else{
                     this.board = board;
-                    for (int j = 0;j<length;j++){
-                        Cell c = board.getCell(uRow+j,lCol);
-                        c.setStatus('S');
-                    }
                     this.uRow = uRow;
                     this.lCol = lCol;
                     this.ort = ort;
@@ -135,16 +127,28 @@ public class Ship implements Serializable {
     }
     public void hit() {
         this.hit += 1;
-        if (isSunk()) {
-            System.out.println(SUNK_MESSAGE);
+        try {
+            isSunk();
+        }
+        catch (OutOfBoundsException e) {
+            e.printStackTrace();
         }
     }
-    public boolean isSunk(){
+    public boolean isSunk() throws OutOfBoundsException {
         if (this.hit == this.length){
             return true;
         }
         else {
             return false;
         }
+    }
+
+    public int getLength() {
+        return length;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString();
     }
 }

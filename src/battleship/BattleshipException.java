@@ -19,6 +19,8 @@ public class BattleshipException extends Exception {
     // message string. It should pass the string up to its superclass
     // and set row and column to UNSET.
     public BattleshipException(String msg){
-
+        super(msg);
+        row = UNSET;
+        column = UNSET;
     }
 }

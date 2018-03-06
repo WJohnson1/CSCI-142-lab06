@@ -33,10 +33,12 @@ public class Cell implements Serializable {
     private int row;
     private int column;
     private char status;
+    private Ship s;
     public Cell(int row, int column){
         this.row = row;
         this.column = column;
         this.status = PRISTINE_WATER;
+        this.s = null;
     }
     /**
      * Place a ship on this cell. Of course, ships typically cover
@@ -50,6 +52,7 @@ public class Cell implements Serializable {
             throw new OverlapException();
         }
         else{
+            this.s = ship;
             this.status='S';
         }
 
@@ -59,7 +62,18 @@ public class Cell implements Serializable {
             throw new CellPlayedException(this.row,this.column,"You hit");
         }
         else if (this.status == HIDDEN_SHIP_SECTION){
-            this.status = HIT_SHIP_SECTION;
+
+            try {
+                this.getS().hit();
+                if (this.getS().isSunk()){
+                    this.setStatus('*');
+                }
+                this.status = HIT_SHIP_SECTION;
+            }
+            catch (OutOfBoundsException e) {
+                e.printStackTrace();
+            }
+
         }
         else{
             this.status = HIT_WATER;
@@ -72,6 +86,9 @@ public class Cell implements Serializable {
         else if( this.status == HIT_WATER){
             return HIT_WATER;
         }
+        else if(this.status == '*'){
+            return '*';
+        }
         else {
             return HIT_SHIP_SECTION;
         }
@@ -82,5 +99,13 @@ public class Cell implements Serializable {
 
     public void setStatus(char status) {
         this.status = status;
+    }
+
+    public char getStatus() {
+        return status;
+    }
+
+    public Ship getS() {
+        return s;
     }
 }
