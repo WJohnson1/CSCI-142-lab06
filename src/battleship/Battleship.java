@@ -6,14 +6,24 @@ import java.util.List;
 
 public class Battleship implements Serializable{
     public static final String ALL_SHIPS_SUNK = "All ships sunk!";
-    public static final String BAD_ARG_COUNT = "";
+    public static final String BAD_ARG_COUNT = "Wrong number of arguments for command";
     public static final String MISSING_SETUP_FILE = "No setup file specified";
     public static final int MAX_DIM = 10;
     public static final String DIM_TOO_BIG = "The coordinate dimensions are too big";
-    public static final String BAD_CONFIG_FILE = "";
+    public static final String BAD_CONFIG_FILE = "File didn't have proper configuration";
     public static final String PROMPT = "> ";
     public static final String WHITESPACE = " ";
+    private PrintStream out;
     private Board board;
+
+    /**
+     *
+     * @param a
+     * @return
+     * @throws OverlapException
+     * @throws OutOfBoundsException
+     * @throws BattleshipException
+     */
     private boolean setup(String[] a) throws OverlapException, OutOfBoundsException, BattleshipException {
         if (checkArgCount(a,2)) {
             if (Integer.parseInt(a[0]) <= MAX_DIM || Integer.parseInt(a[1]) <= MAX_DIM){
@@ -36,15 +46,70 @@ public class Battleship implements Serializable{
             }
         }
         else{
-            throw new BattleshipException(BAD_ARG_COUNT);
+            throw new BattleshipException(BAD_CONFIG_FILE);
         }
         return true;
     }
     private void promptPlayer(){
-
+        System.out.print(PROMPT);
+        out.print(PROMPT);
     }
     private void play(){
 
+        BufferedReader q = new BufferedReader(new InputStreamReader(System.in));
+        boolean something = true;
+        while (!this.board.allSunk() && something) {
+            this.promptPlayer();
+            String hit_coordinates = null;
+            try {
+                hit_coordinates = q.readLine();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            out.print(hit_coordinates);
+            String[] h_coordinates = hit_coordinates.split(WHITESPACE);
+            if (h_coordinates[0].equals("h")) {
+                try {
+                    if (this.hit(h_coordinates) == false){
+                        out.println(BAD_ARG_COUNT);
+                    }
+                    else {
+                        Cell c = this.board.getCells()[Integer.parseInt(h_coordinates[1])][Integer.parseInt(h_coordinates[2])];
+                        if (c.getStatus() == '☐' || c.getStatus() == '*') {
+                            if (c.getS().isSunk()) {
+                                out.println();
+                                out.println(Ship.SUNK_MESSAGE);
+                            }
+                        }
+                        out.println();
+                        this.board.display(out);
+                    }
+                } catch (OutOfBoundsException e) {
+                    e.printStackTrace();
+                } catch (BattleshipException e) {
+                    e.printStackTrace();
+                }
+            } else if (h_coordinates[0].equals("s")) {
+                this.save(h_coordinates);
+                this.out.println();
+            } else if (h_coordinates[0].equals("q")) {
+                something = this.quit(h_coordinates);
+                this.out.println();
+            } else if (h_coordinates[0].equals("!")) {
+                this.out.println();
+                if (this.cheat(h_coordinates)) {
+                    this.board.fullDisplay(out);
+                }
+            } else {
+
+            }
+
+        }
+        if (something) {
+
+            out.println(ALL_SHIPS_SUNK);
+
+        }
     }
     private boolean hit(String[] b) throws OutOfBoundsException, BattleshipException {
         if (checkArgCount(b,3)){
@@ -117,10 +182,8 @@ public class Battleship implements Serializable{
     }
     private boolean save(String[] s){
         try {
-            OutputStream out = new FileOutputStream("object.bin");
-            for (String line:s){
-                out.write(line.getBytes());
-            }
+            ObjectOutputStream outstream = new ObjectOutputStream(new FileOutputStream(s[1]));
+            outstream.writeObject(this.board);
             return true;
         }
         catch (FileNotFoundException e) {
@@ -137,21 +200,30 @@ public class Battleship implements Serializable{
     public static void main(String[] args) throws OverlapException, OutOfBoundsException {
         if (args.length == 1){
             try {
-                PrintStream out = new PrintStream("C:\\Users\\William\\Desktop\\Git\\lab06-WCJ7833\\game.txt");
-                out.print("Checking if " + args[0] + " is a saved game file... ");
-                if (args[0].endsWith("bin")){
 
+                if (args[0].endsWith("bin")){
+                    ObjectInputStream in = new ObjectInputStream(new FileInputStream(args[0]));
+                    Battleship b = new Battleship();
+                    b.board = (Board) in.readObject();
+                    PrintStream out = new PrintStream("C:\\Users\\William\\Desktop\\Git\\lab06-WCJ7833\\game.txt");
+                    b.out = out;
+                    out.print("Checking if " + args[0] + " is a saved game file... ");
                     out.print("yes");
                     out.println();
                     out.println();
+                    b.board.display(out);
+                    b.play();
                 }
                 else {
-                    out.print("no; will read as a text setup file.");
-                    out.println();
-                    out.println();
+                    Battleship battleship = new Battleship();
+                    PrintStream out = new PrintStream("C:\\Users\\William\\Desktop\\Git\\lab06-WCJ7833\\game.txt");
+                    battleship.out = out;
+                    battleship.out.print("Checking if " + args[0] + " is a saved game file... ");
+                    battleship.out.print("no; will read as a text setup file.");
+                    battleship.out.println();
+                    battleship.out.println();
                     BufferedReader b = new BufferedReader(new FileReader(args[0]));
                     String dimensions = b.readLine();
-                    Battleship battleship = new Battleship();
                     while (dimensions != null) {
                         String[] l = dimensions.split(WHITESPACE);
                         try {
@@ -162,58 +234,8 @@ public class Battleship implements Serializable{
                         dimensions = b.readLine();
 
                     }
-                    battleship.board.display(out);
-                    BufferedReader q = new BufferedReader(new InputStreamReader(System.in));
-                    boolean something = true;
-                    while (!battleship.board.allSunk() && something) {
-                        System.out.print(PROMPT);
-                        out.print(PROMPT);
-                        String hit_coordinates = q.readLine();
-                        out.print(hit_coordinates);
-                        String[] h_coordinates = hit_coordinates.split(WHITESPACE);
-                        if (h_coordinates[0].equals("h")) {
-                            if (battleship.hit(h_coordinates) == false){
-                                out.println("Wrong number of arguments for command");
-                            }
-                            else {
-                                Cell c = battleship.board.getCells()[Integer.parseInt(h_coordinates[1])][Integer.parseInt(h_coordinates[2])];
-                                if (c.getStatus() == '☐' || c.getStatus() == '*') {
-                                    if (c.getS().isSunk()) {
-                                        out.println();
-                                        out.println(Ship.SUNK_MESSAGE);
-                                    }
-                                }
-                                out.println();
-                                battleship.board.display(out);
-                            }
-                        } else if (h_coordinates[0].equals("s")) {
-                            Cell[][] c = battleship.board.getCells();
-                            String[] s =new String[battleship.board.getHeight()];
-                            for ( int i = 0;i<s.length;i++){
-                                String a = "";
-                                for (int j =0;j<c[i].length;j++){
-                                    a = a + c[i][j] + " ";
-                                }
-                                s[i] = a;
-                            }
-                            battleship.save(s);
-
-                        } else if (h_coordinates[0].equals("q")) {
-                            something = false;
-                        } else if (h_coordinates[0].equals("!")) {
-                            if (battleship.cheat(h_coordinates)) {
-                                battleship.board.fullDisplay(out);
-                            }
-                        } else {
-
-                        }
-
-                    }
-                    if (something) {
-
-                        out.println(ALL_SHIPS_SUNK);
-
-                    }
+                    battleship.board.display(battleship.out);
+                    battleship.play();
                 }
 
             }
@@ -221,13 +243,13 @@ public class Battleship implements Serializable{
                 System.out.println(e);
             } catch (IOException e) {
                 e.printStackTrace();
-            }catch (BattleshipException e){
+            } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
 
         }
         else{
-            System.out.println("No setup file specified");
+            System.out.println(MISSING_SETUP_FILE);
         }
     }
 }

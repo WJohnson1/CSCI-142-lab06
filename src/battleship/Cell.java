@@ -6,6 +6,7 @@ import java.io.Serializable;
  * A single spot on the Battleship game board.
  * A cell knows if there is a ship on it, and it remember
  * if it has been hit.
+ * @author William Johnson
  */
 public class Cell implements Serializable {
 
@@ -49,7 +50,7 @@ public class Cell implements Serializable {
      */
     public void putShip(Ship ship) throws OverlapException {
         if (this.status == HIDDEN_SHIP_SECTION || this.status == HIT_WATER || this.status == HIT_SHIP_SECTION){
-            throw new OverlapException();
+            throw new OverlapException(ship.getuRow(),ship.getlCol());
         }
         else{
             this.s = ship;
@@ -57,28 +58,33 @@ public class Cell implements Serializable {
         }
 
     }
+
+    /**
+     * Changes the status of the cell is changed based on the logic of battleship
+     * @throws CellPlayedException the cell has already been hit
+     */
     public void hit() throws CellPlayedException{
         if (this.status == HIT_WATER || this.status == HIT_SHIP_SECTION){
-            throw new CellPlayedException(this.row,this.column,"You hit");
+            throw new CellPlayedException(this.row,this.column);
         }
         else if (this.status == HIDDEN_SHIP_SECTION){
 
-            try {
-                this.getS().hit();
-                if (this.getS().isSunk()){
-                    this.setStatus('*');
-                }
-                this.status = HIT_SHIP_SECTION;
+            this.getS().hit();
+            if (this.getS().isSunk()){
+                this.setStatus('*');
             }
-            catch (OutOfBoundsException e) {
-                e.printStackTrace();
-            }
+            this.status = HIT_SHIP_SECTION;
 
         }
         else{
             this.status = HIT_WATER;
         }
     }
+
+    /**
+     * Returns the hit status of the cell
+     * @return the status that the player can see during the game
+     */
     public char displayHitStatus(){
         if (this.status == HIDDEN_SHIP_SECTION || this.status == PRISTINE_WATER) {
             return PRISTINE_WATER;
@@ -93,18 +99,35 @@ public class Cell implements Serializable {
             return HIT_SHIP_SECTION;
         }
     }
+
+    /**
+     * Returns the status of the cell
+     * @return the status of the cel
+     */
     public char displayChar(){
         return this.status;
     }
 
+    /**
+     * Sets the value of the cell's status to another value
+     * @param status the status that the cell will be set to
+     */
     public void setStatus(char status) {
         this.status = status;
     }
 
+    /**
+     * Returns the status of the cell
+     * @return the status of the cell
+     */
     public char getStatus() {
         return status;
     }
 
+    /**
+     * Returns the ship that is on the cell
+     * @return the ship that is on the cell
+     */
     public Ship getS() {
         return s;
     }

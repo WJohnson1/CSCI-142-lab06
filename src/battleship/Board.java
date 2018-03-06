@@ -8,19 +8,19 @@ import java.util.ArrayList;
  * The class to represent the grid of cells (squares).
  * A collection of ships is also kept so the Board
  * can be asked if the game is over.
- * The class is Serializable so that its instance can
- * be saved to a file in binary form using an
- * {@link java.io.ObjectOutputStream} and restored
- * with an {@link java.io.ObjectInputStream}.
- * Because the object holds references to all other
- * objects in the system, no other objects need to
- * be separately saved.
+ * @author William Johnson
  */
 public class Board implements Serializable {
     private int height;
     private int width;
     private Cell[][] cells;
     private ArrayList<Ship> ships;
+
+    /**
+     * Creates the board with a certain height and width
+     * @param height the height of the board
+     * @param width the width of the board
+     */
     public Board(int height, int width){
         this.height = height;
         this.width = width;
@@ -42,17 +42,25 @@ public class Board implements Serializable {
      */
     public Cell getCell(int row, int column) throws OutOfBoundsException{
         if (row >= getHeight() || row<0 || column>=getWidth() || column<0){
-            throw new OutOfBoundsException("The cell coordinates are not in the board");
+            throw new OutOfBoundsException(row,column);
         }
         else{
             return cells[row][column];
         }
     }
 
+    /**
+     * Returns the height of the board
+     * @return the height of the board
+     */
     public int getHeight() {
         return height;
     }
 
+    /**
+     * Returns the width of the board
+     * @return the width of the board
+     */
     public int getWidth() {
         return width;
     }
@@ -80,6 +88,10 @@ public class Board implements Serializable {
         }
     }
 
+    /**
+     * Creates a string representation of the board
+     * @return the string representation of the board
+     */
     @Override
     public String toString() {
         String s = "  ";
@@ -99,6 +111,11 @@ public class Board implements Serializable {
         }
         return s;
     }
+
+    /**
+     * Display the board in character form to the user
+     * @param out the output stream to which the display will be sent
+     */
     public void display(PrintStream out){
         out.print("  ");
         for (int i = 0; i<this.getHeight()+1;i++) {
@@ -117,10 +134,18 @@ public class Board implements Serializable {
         out.println();
     }
 
+    /**
+     * Returns the cells of the board
+     * @return the cells of the board
+     * */
     public Cell[][] getCells() {
         return cells;
     }
 
+    /**
+     * The "cheating" form of the display because the user can see where the unsunk parts of the ships are
+     * @param out the output stream to which the display should be sent
+     */
     public void fullDisplay(PrintStream out){
         out.print("  ");
         for (int i = 0; i<this.getHeight()+1;i++){
@@ -139,29 +164,27 @@ public class Board implements Serializable {
         }
         out.println();
     }
+
+    /**
+     * Returns true if all the ships on the board have been sunk, else returns false
+     * @return true or false
+     */
     public boolean allSunk(){
-        try {
-            boolean a = true;
-            for (Ship s : this.ships) {
-                if (s.isSunk() == false) {
-                    a = false;
-                }
+        boolean a = true;
+        for (Ship s : this.ships) {
+            if (s.isSunk() == false) {
+                a = false;
             }
-            return a;
         }
-        catch (OutOfBoundsException e){
-            e.printStackTrace();
-            return false;
-        }
+        return a;
     }
 
+    /**
+     * Returns an arraylist containing all the ships on the board
+     * @return an arrayList containing all the ships on the board
+     */
     public ArrayList<Ship> getShips() {
         return ships;
     }
 
-    public static void main(String[] args){
-        Board b = new Board(8,4);
-        System.out.println(b.toString());
-
-    }
 }

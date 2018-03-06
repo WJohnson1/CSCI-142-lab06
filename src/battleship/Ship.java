@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 /**
  * A single ship in a Battleship game
+ * @author William Johnson
  */
 public class Ship implements Serializable {
 
@@ -75,18 +76,22 @@ public class Ship implements Serializable {
     public Ship(Board board, int uRow, int lCol, Orientation ort, int length) throws OverlapException, OutOfBoundsException{
         if (ort == Orientation.HORIZONTAL){
             if (lCol + length>board.getWidth()){
-                throw new OutOfBoundsException("The ship doesn't fit on the board");
+                throw new OutOfBoundsException(uRow, lCol +length);
             }
             else{
                 boolean a = false;
+                int o = 0;
+                int p = 0;
                 for (int i = 0; i<length;i++){
                     if (board.getCell(uRow,lCol+i).displayChar() == 'S' || board.getCell(uRow,lCol+i).displayChar() == '☐' ||
                             board.getCell(uRow,lCol+i).displayChar() == '.'){
                         a = true;
+                        o = uRow;
+                        p = lCol + i;
                     }
                 }
                 if (a){
-                    throw new OverlapException();
+                    throw new OverlapException(o,p);
                 }
                 else{
                     this.board = board;
@@ -100,18 +105,22 @@ public class Ship implements Serializable {
         }
         else{
             if (uRow + length>board.getHeight()){
-                throw new OutOfBoundsException("The ship doesn't fit on the board");
+                throw new OutOfBoundsException(uRow + length, lCol);
             }
             else{
                 boolean a = false;
+                int o = 0;
+                int p = 0;
                 for (int i = 0; i<length;i++){
                     if (board.getCell(uRow+i,lCol).displayChar() == 'S' || board.getCell(uRow+i,lCol).displayChar() == '☐' ||
                             board.getCell(uRow+i,lCol).displayChar() == '.'){
                         a = true;
+                        o = uRow+i;
+                        p = lCol;
                     }
                 }
                 if (a){
-                    throw new OverlapException();
+                    throw new OverlapException(o,p);
                 }
                 else{
                     this.board = board;
@@ -125,16 +134,20 @@ public class Ship implements Serializable {
         }
 
     }
+
+    /**
+     * Increases the hit value of the ship
+     */
     public void hit() {
         this.hit += 1;
-        try {
-            isSunk();
-        }
-        catch (OutOfBoundsException e) {
-            e.printStackTrace();
-        }
+        isSunk();
     }
-    public boolean isSunk() throws OutOfBoundsException {
+
+    /**
+     * Returns true if the ship has sunk else returns false if it hasn't
+     * @return true or false
+     */
+    public boolean isSunk(){
         if (this.hit == this.length){
             return true;
         }
@@ -143,10 +156,18 @@ public class Ship implements Serializable {
         }
     }
 
+    /**
+     * Returns the length of the ship
+     * @return the length of the ship
+     */
     public int getLength() {
         return length;
     }
 
+    /**
+     * Returns the string representation of the ship
+     * @return the string representation of the ship
+     */
     @Override
     public String toString() {
         return super.toString();
